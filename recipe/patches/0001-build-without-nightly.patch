@@ -1,0 +1,62 @@
+From 8e71cea44ef8a560ff296e7753e8276df81518e2 Mon Sep 17 00:00:00 2001
+From: Andrii Osipov <aosipov@anaconda.com>
+Date: Wed, 5 Nov 2025 07:18:02 -0800
+Subject: [PATCH] build without nightly
+
+---
+ Cargo.toml | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index 55c2718..8301ba0 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -1,5 +1,3 @@
+-cargo-features = ["profile-rustflags"]
+-
+ [package]
+ name = "polars_ols"
+ version = "0.3.5"
+@@ -10,15 +8,15 @@ name = "polars_ols"
+ crate-type = ["cdylib"]
+ 
+ [dependencies]
+-pyo3 = { version = "*", features = ["extension-module", "abi3-py38", "gil-refs"] }  # set > py38 supported version
++pyo3 = { version = "*", features = ["extension-module", "abi3-py38", "gil-refs"] }
+ pyo3-polars = { version = "*", features = ["derive"] }
+ serde = { version = "*", features = ["derive"] }
+-polars = { version = "*", features = ["performant", "lazy", "ndarray", "dtype-struct", "nightly"] }
++polars = { version = "*", features = ["performant", "lazy", "ndarray", "dtype-struct"] }
+ ndarray-rand = { version = "*" }
+ num-traits = { version = "*" }
+ approx = { version = "*" }
+ ndarray = { version = "*", features = ["matrixmultiply-threading"] }
+-statrs = "*"  # Check for the latest version
++statrs = "*"
+ pulp = { version = "0.18.22" }
+ 
+ [target.'cfg(target_os = "linux")'.dependencies]
+@@ -37,16 +35,15 @@ lapack-src = { version = "*", features = ["accelerate"] }
+ ndarray-linalg = {version = "*"}
+ 
+ [target.'cfg(target_arch = "arm")'.dependencies]
+-faer = { version = "*" }  # don't allow nightly for ARM due to issues with NEON support
++faer = { version = "*" }
+ faer-ext = { version = "*", features = ["ndarray"] }
+ 
+ [target.'cfg(not(target_arch = "arm"))'.dependencies]
+-pulp = { version = "0.18.22", features = ["nightly"] }
+-faer = { version = "*", features = ["std", "rayon", "serde", "rand", "npy", "nightly"] }
++faer = { version = "*", features = ["std", "rayon", "serde", "rand", "npy"] }
+ faer-ext = { version = "*", features = ["ndarray"] }
+ 
+ [dev-dependencies]
+ ndarray-linalg = { version = "*" }
+ 
+ [profile.dev.package.faer]
+-opt-level = 3
++opt-level = 3
+\ No newline at end of file
+-- 
+2.39.3 (Apple Git-146)
+

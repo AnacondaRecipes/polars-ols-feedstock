@@ -26,9 +26,6 @@ source:
 build:
   number: 0
   script:
-    # Help with dependency resolution
-    - export CARGO_NET_GIT_FETCH_WITH_CLI=true  # [unix]
-    - set CARGO_NET_GIT_FETCH_WITH_CLI=true  # [win]
     # ++++++++++++++
     # Used to avoid SIGSEGV during the optimization step on the Linux-aarch64 platform.
     # The crash occurs because LLVM 20.1's aggressive optimization passes (default opt-level=3)

@@ -75,7 +75,7 @@ test:
     - pyarrow
 
 about:
-  home: https://pypi.org/project/polars-ols
+  home: https://github.com/azmyrajab/polars_ols
   summary: Polars Least Squares Extension
   license: MIT
   license_family: MIT
@@ -83,8 +83,8 @@ about:
     - LICENSE
     - THIRDPARTY.yml
   description: Supports linear model estimation in Polars.
-  doc_url: https://pypi.org/project/polars-ols
-  dev_url: https://pypi.org/project/polars-ols
+  doc_url: https://github.com/azmyrajab/polars_ols/blob/main/README.md
+  dev_url: https://github.com/azmyrajab/polars_ols
 
 extra:
   recipe-maintainers:

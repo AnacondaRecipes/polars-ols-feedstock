@@ -1,0 +1,5 @@
+# Needed to save backward compatibility between pulp 0.18.22 and Rust:
+c_compiler_version:  # [osx]
+  - 17               # [osx]
+rust_compiler_version:
+  - 1.89.0

@@ -1,0 +1,90 @@
+{% set name = "polars-ols" %}
+{% set version = "0.3.5" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name.replace('-', '_')}}-{{ version }}.tar.gz
+  sha256: b507aa33c920573f3e3a152b6cb4e4429b3892db5e393fd2cb5cd7cfb53d7e77
+  patches:
+    # Reason:
+    # Latest version of rust-nightly in main is incompatible with pinned pulp==0.18.22 in the Cargo.toml.
+    # Rust nightly introduces breaking changes to SIMD intrinsics type signatures in core::arch,
+    # and pulp 0.18.22's macro-generated wrapper code assumes older type signatures.
+    # When nightly updates stdarch (the standard library's architecture-specific intrinsics),
+    # it can change pointer types, alignment requirements, or function signatures that pulp 0.18.22 hardcodes.
+    # Diagnose:
+    # Error (expected *mut i32 OR i16, found *mut u8) indicates pulp 0.18.22 was written against an older version of Rust's stdarch,
+    # where AVX-512 intrinsics accepted generic *mut u8 pointers.
+    # Newer Rust nightly versions enforced stricter typing requiring correctly-typed pointers (*mut i32, *mut f64, etc.).
+    # Pulp's delegate macro doesn't adapt to these changes automatically.
+    # ++++++++++++++
+    - patches/0001-build-without-nightly.patch
+
+build:
+  number: 0
+  script:
+    # ++++++++++++++
+    # Used to avoid SIGSEGV during the optimization step on the Linux-aarch64 platform.
+    # The crash occurs because LLVM 20.1's aggressive optimization passes (default opt-level=3)
+    # trigger a memory access violation or infinite loop in the BranchProbabilityInfo calculation
+    # for polars-ols code, likely due to either a compiler bug, excessively complex control flow,
+    # or insufficient memory/stack space during compilation.
+    # ++++++++++++++
+    - export CARGO_PROFILE_RELEASE_OPT_LEVEL=2  # [linux and aarch64]
+    # Build
+    - {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+    # Licenses generation
+    - cargo-bundle-licenses --format yaml --output THIRDPARTY.yml
+  skip: true  # [py<38]
+
+requirements:
+  build:
+    - {{ stdlib('c') }}
+    - {{ compiler('c') }}
+    - {{ compiler('rust') }}
+    - cargo-bundle-licenses
+  host:
+    - python
+    - maturin >=1.0,<2.0
+    - polars >=0.20.6
+    - pip
+  run:
+    - python
+    - polars >=0.20.16
+
+test:
+  source_files:
+    - tests
+  imports:
+    - polars_ols
+  commands:
+    - pip check
+    - pytest -v 
+  requires:
+    - pip
+    - pytest >=7.4.1
+    - numpy
+    - statsmodels
+    - scikit-learn
+    - pyarrow
+
+about:
+  home: https://github.com/azmyrajab/polars_ols
+  summary: Polars Least Squares Extension
+  license: MIT
+  license_family: MIT
+  license_file: 
+    - LICENSE
+    - THIRDPARTY.yml
+  description: Supports linear model estimation in Polars.
+  doc_url: https://github.com/azmyrajab/polars_ols/blob/main/README.md
+  dev_url: https://github.com/azmyrajab/polars_ols
+
+extra:
+  recipe-maintainers:
+    - snegireff
+  skip-lints:
+    - host_section_needs_exact_pinnings
